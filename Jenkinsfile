@@ -42,7 +42,7 @@ pipeline {
         '''
       }}
       steps {
-        git clone http://github.com/abijanu101/dr-deployment.git
+        sh 'git clone http://github.com/abijanu101/dr-deployment.git'
       }
     }
 
