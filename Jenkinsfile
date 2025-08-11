@@ -26,26 +26,6 @@ spec:
 pipeline {
   agent none
   stages {
-    stage('Clone') {
-      agent { kubernetes {
-        yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          restartPolicy: Never
-          containers:
-            - name: git
-              image: bitnami/git
-              command:
-              - cat
-              tty: true
-        '''
-      }}
-      steps {
-        sh 'git clone http://github.com/abijanu101/dr-deployment.git'
-      }
-    }
-
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
