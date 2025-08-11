@@ -11,7 +11,6 @@ spec:
         - --context=.
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
-        - -- verbosity=info
       volumeMounts:
         - 
         - name: kaniko-secret
