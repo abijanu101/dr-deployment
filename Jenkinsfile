@@ -26,6 +26,10 @@ spec:
 pipeline {
   agent none
   stages {
+    stage('Clone') {
+      agent any
+      steps {checkout scm}
+    }
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
