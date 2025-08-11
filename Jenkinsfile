@@ -12,7 +12,6 @@ spec:
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
       volumeMounts:
-        - 
         - name: kaniko-secret
           mountPath: /kaniko/.docker/config.json
           subPath: .dockerconfigjson
