@@ -8,7 +8,7 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:latest
       args:
-        - --context=/workspace/hello
+        - --context=/workspace/hello/dr-deployment
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
       volumeMounts:
@@ -38,15 +38,15 @@ pipeline {
                 - cat
               tty: true
       '''}}
-      steps { checkout scm }
+      steps { 
+        checkout scm 
+        sh 'pwd'
+        sh 'ls'
+      }
     }
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
-      steps {
-        sh 'pwd'
-        sh 'ls'
-        echo 'React build step reached'
-      }
+      steps { echo 'React build step reached' }
     }
     stage('Build Express') {
       agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
