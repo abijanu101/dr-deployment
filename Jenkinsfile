@@ -19,7 +19,7 @@ def kanikoPod = { dockerfilePath, imageName ->
       - name: kaniko-secret
         secret:
           secretName: kaniko-secret
-"""
+  """
 }
 
 pipeline {
@@ -41,15 +41,15 @@ pipeline {
     }
 
     stage('Build React') {
-      agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
+      agent { kubernetes { yaml kanikoPod('./frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
     }
     stage('Build Express') {
-      agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
+      agent { kubernetes { yaml kanikoPod('./backend/Dockerfile', 'dr-express') } }
       steps { echo 'Express step reached' }
     }
     stage('Build SQL Init') {
-      agent { kubernetes { yaml kanikoPod('db/Dockerfile', 'dr-sql-init') } }
+      agent { kubernetes { yaml kanikoPod('./db/Dockerfile', 'dr-sql-init') } }
       steps { echo 'SQL-init build step reached' }
     }
 
