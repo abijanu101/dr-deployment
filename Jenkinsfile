@@ -1,83 +1,49 @@
+def kanikoPod = { dockerfilePath, imageName ->
+  return """
+apiVersion: v1
+kind: Pod
+spec:
+  restartPolicy: Never
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      args:
+        - --context=git://github.com/abijanu101/dr-deployment.git
+        - --dockerfile=${dockerfilePath}
+        - --destination=abijanu101/${imageName}:latest
+      volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: kaniko-secret
+"""
+}
+
+
 pipeline {
-  agent none // Don't start a pod until we need one
-
+  agent none
   stages {
-
-    stage('Build & Push Images') {
-      agent {
-        kubernetes {
-          yaml """
-            apiVersion: v1
-            kind: Pod
-            spec:
-              containers:
-                - name: kaniko
-                  image: gcr.io/kaniko-project/executor:latest
-                  command:
-                  - sleep
-                  args:
-                  - infinity
-                  volumeMounts:
-                    - name: kaniko-secret
-                      mountPath: /kaniko/.docker
-              volumes:
-                - name: kaniko-secret
-                  secret:
-                    secretName: kaniko-secret
-          """
-        }
-      }
-      steps {
-        container('kaniko') {
-          // Build & push React
-          sh """
-            /kaniko/executor \
-              --context=git://github.com/abijanu101/dr-deployment.git \
-              --dockerfile=frontend/Dockerfile \
-              --destination=abijanu101/dr-react:latest
-          """
-          // Build & push Express
-          sh """
-            /kaniko/executor \
-              --context=git://github.com/abijanu101/dr-deployment.git \
-              --dockerfile=backend/Dockerfile \
-              --destination=abijanu101/dr-express:latest
-          """
-          // Build & push SQL Init
-          sh """
-            /kaniko/executor \
-              --context=git://github.com/abijanu101/dr-deployment.git \
-              --dockerfile=db/Dockerfile \
-              --destination=abijanu101/dr-sql-init:latest
-          """
-        }
-      }
+    stage('Build React') {
+      agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
+      steps { echo 'Kaniko pod will build and exit on its own' }
+    }
+    stage('Build Express') {
+      agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
+      steps { echo 'Kaniko pod will build and exit on its own' }
+    }
+    stage('Build SQL Init') {
+      agent { kubernetes { yaml kanikoPod('db/Dockerfile', 'dr-sql-init') } }
+      steps { echo 'Kaniko pod will build and exit on its own' }
     }
 
-    stage('Deploy with Helm') {
-      agent {
-        kubernetes {
-          yaml """
-            apiVersion: v1
-            kind: Pod
-            spec:
-              containers:
-                - name: helm
-                  image: alpine/helm:3.14.0
-                  command:
-                    - cat
-                  tty: true
-          """
-        }
-      }
-      steps {
-        container('helm') {
-          sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
-          sh 'helm upgrade --install react ./k8s/charts/base -f ./k8s/values/react.yaml'
-          sh 'helm upgrade --install express ./k8s/charts/base -f ./k8s/values/express.yaml'
-        }
+    steps {
+      container('helm') {
+        sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
+        sh 'helm upgrade --install react ./k8s/charts/base -f ./k8s/values/react.yaml'
+        sh 'helm upgrade --install express ./k8s/charts/base -f ./k8s/values/express.yaml'
       }
     }
-
   }
 }
