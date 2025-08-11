@@ -27,7 +27,17 @@ pipeline {
   agent none
   stages {
     stage('Clone') {
-      agent any
+      agent { kubernetes { yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: git
+              image: bitnami/git
+              command:
+                - cat
+              tty: true
+      '''}}
       steps { checkout scm }
     }
     stage('Build React') {
@@ -44,21 +54,17 @@ pipeline {
     }
 
     stage('Deploy with Helm') {
-      agent {
-        kubernetes {
-          yaml """
-            apiVersion: v1
-            kind: Pod
-            spec:
-              containers:
-                - name: helm
-                  image: alpine/helm:3.14.0
-                  command:
-                    - cat
-                  tty: true
-        """
-      }
-    }
+      agent { kubernetes { yaml """
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: helm
+              image: alpine/helm:3.14.0
+              command:
+                - cat
+              tty: true
+        """}}
     steps {
       container('helm') {
         sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
