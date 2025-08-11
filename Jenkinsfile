@@ -8,7 +8,7 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:latest
       args:
-        - --context=/workspace/hello/dr-deployment
+        - --context=/home/jenkins/agent/workspace/hello
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
       volumeMounts:
