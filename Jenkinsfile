@@ -41,6 +41,23 @@ pipeline {
       steps { checkout scm }
     }
 
+    stage('Debug') {
+      agent { kubernetes {yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: helm
+              image: alpine/helm:3.14.0
+              command:
+                - cat
+              tty: true
+      '''}}
+      steps {
+        sh 'ls'
+      }
+    }
+
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
