@@ -8,7 +8,7 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:latest
       args:
-        - --context=/workspace
+        - --context=/workspace/hello
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
       volumeMounts:
@@ -42,7 +42,11 @@ pipeline {
     }
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
-      steps { echo 'React build step reached' }
+      steps {
+        sh 'pwd'
+        sh 'ls'
+        echo 'React build step reached'
+      }
     }
     stage('Build Express') {
       agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
@@ -67,8 +71,6 @@ pipeline {
         """}}
     steps {
       container('helm') {
-        sh 'pwd'
-        sh 'ls'
         sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
         sh 'helm upgrade --install react ./k8s/charts/base -f ./k8s/values/react.yaml'
         sh 'helm upgrade --install express ./k8s/charts/base -f ./k8s/values/express.yaml'
