@@ -13,9 +13,6 @@ pipeline {
               containers:
                 - name: kaniko
                   image: gcr.io/kaniko-project/executor:latest
-                  command:
-                    - cat
-                  tty: true
                   volumeMounts:
                     - name: kaniko-secret
                       mountPath: /kaniko/.docker
@@ -23,8 +20,8 @@ pipeline {
                 - name: kaniko-secret
                   secret:
                     secretName: kaniko-secret
-"""
-              }
+          """
+        }
       }
       steps {
         container('kaniko') {
@@ -66,7 +63,7 @@ pipeline {
                   command:
                     - cat
                   tty: true
-"""
+          """
         }
       }
       steps {
