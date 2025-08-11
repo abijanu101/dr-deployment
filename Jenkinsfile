@@ -8,7 +8,7 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:latest
       args:
-        - --context="/workspace/hello"
+        - --context=.
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
         - -- verbosity=info
@@ -40,26 +40,7 @@ pipeline {
                 - cat
               tty: true
       '''}}
-      steps { 
-        checkout scm 
-        sh 'pwd'
-        sh 'ls'
-      }
-    }
-
-    stage('test') {
-      agent{kubernetes { yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-            - name: git
-              image: bitnami/git
-              command:
-                - cat
-              tty: true
-      '''}}
-      steps{sh 'ls'}
+      steps { checkout scm }
     }
 
     stage('Build React') {
