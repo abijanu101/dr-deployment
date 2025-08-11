@@ -1,4 +1,18 @@
 controller:
   serviceType: LoadBalancer
+  serviceAccount:
+    useDefault: false
+    create: true
+    name: jenkins
+  rbac:
+    create: true
+    clusterAdminRole: true
+
+agent:
+  serviceAccount:
+    create: false
+    name: jenkins
+    useDefault: false
+
   admin:
     password: "Qwerty123"
