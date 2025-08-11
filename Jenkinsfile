@@ -11,7 +11,9 @@ spec:
         - --context="/workspace/hello"
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
+        - -- verbosity=info
       volumeMounts:
+        - 
         - name: kaniko-secret
           mountPath: /kaniko/.docker/config.json
           subPath: .dockerconfigjson
@@ -44,6 +46,22 @@ pipeline {
         sh 'ls'
       }
     }
+
+    stage('test') {
+      agent{kubernetes { yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: git
+              image: bitnami/git
+              command:
+                - cat
+              tty: true
+      '''}}
+      steps{sh 'ls'}
+    }
+
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
