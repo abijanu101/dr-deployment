@@ -1,27 +1,26 @@
 def kanikoPod = { dockerfilePath, imageName ->
   return """
-apiVersion: v1
-kind: Pod
-spec:
-  restartPolicy: Never
-  containers:
-    - name: kaniko
-      image: gcr.io/kaniko-project/executor:latest
-      args:
+    apiVersion: v1
+    kind: Pod
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:latest
+        args:
         - --context=.
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
-      volumeMounts:
+        volumeMounts:
         - name: kaniko-secret
           mountPath: /kaniko/.docker/config.json
           subPath: .dockerconfigjson
-  volumes:
-    - name: kaniko-secret
-      secret:
-        secretName: kaniko-secret
+      volumes:
+      - name: kaniko-secret
+        secret:
+          secretName: kaniko-secret
 """
 }
-
 
 pipeline {
   agent none
@@ -39,23 +38,6 @@ pipeline {
               tty: true
       '''}}
       steps { checkout scm }
-    }
-
-    stage('Debug') {
-      agent { kubernetes {yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-            - name: helm
-              image: alpine/helm:3.14.0
-              command:
-                - cat
-              tty: true
-      '''}}
-      steps {
-        sh 'ls'
-      }
     }
 
     stage('Build React') {
