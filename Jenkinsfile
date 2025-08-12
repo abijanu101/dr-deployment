@@ -29,6 +29,19 @@ pipeline {
   }
 
   stages {
+    stage('Build React') {
+      agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
+      steps { echo 'React build step reached' }
+    }
+    stage('Build Express') {
+      agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
+      steps { echo 'Express step reached' }
+    }
+    stage('Build SQL Init') {
+      agent { kubernetes { yaml kanikoPod('db/Dockerfile', 'dr-sql-init') } }
+      steps { echo 'SQL-init build step reached' }
+    }
+
     stage('Clone') {
       agent { kubernetes { yaml '''
         apiVersion: v1
@@ -42,19 +55,6 @@ pipeline {
               tty: true
       '''}}
       steps { checkout scm }
-    }
-
-    stage('Build React') {
-      agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
-      steps { echo 'React build step reached' }
-    }
-    stage('Build Express') {
-      agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
-      steps { echo 'Express step reached' }
-    }
-    stage('Build SQL Init') {
-      agent { kubernetes { yaml kanikoPod('db/Dockerfile', 'dr-sql-init') } }
-      steps { echo 'SQL-init build step reached' }
     }
 
     stage('Deploy with Helm') {
