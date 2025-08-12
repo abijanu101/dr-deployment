@@ -54,7 +54,7 @@ pipeline {
                 - cat
               tty: true
       '''}}
-      steps { checkout scm }
+      steps { sh 'git clone http://github.com/abijanu101/dr-deployment.git' }
     }
 
     stage('Deploy with Helm') {
