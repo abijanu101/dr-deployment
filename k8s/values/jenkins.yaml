@@ -4,15 +4,19 @@ controller:
     useDefault: false
     create: true
     name: jenkins
-  rbac:
-    create: true
-    clusterAdminRole: true
+
+rbac:
+  create: true
+  readSecrets: true
 
 agent:
   serviceAccount:
     create: false
     name: jenkins
     useDefault: false
+  rbac:
+    create: true
+    clusterAdminRole: true
 
   admin:
     password: "Qwerty123"
