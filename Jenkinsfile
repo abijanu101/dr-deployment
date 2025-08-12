@@ -24,6 +24,10 @@ def kanikoPod = { dockerfilePath, imageName ->
 
 pipeline {
   agent none
+  options {
+    skipDefaultCheckout(true)
+  }
+
   stages {
     // stage('Clone') {
     //   agent { kubernetes { yaml '''
