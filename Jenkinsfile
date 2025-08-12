@@ -8,7 +8,7 @@ def kanikoPod = { dockerfilePath, imageName ->
       - name: kaniko
         image: gcr.io/kaniko-project/executor:latest
         args:
-        - --context=${env.WORKSPACE}
+        - --context=git://github.com/abijanu101/dr-deployment.git
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
         volumeMounts:
@@ -25,20 +25,20 @@ def kanikoPod = { dockerfilePath, imageName ->
 pipeline {
   agent none
   stages {
-    stage('Clone') {
-      agent { kubernetes { yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-            - name: git
-              image: bitnami/git
-              command:
-                - cat
-              tty: true
-      '''}}
-      steps { checkout scm }
-    }
+    // stage('Clone') {
+    //   agent { kubernetes { yaml '''
+    //     apiVersion: v1
+    //     kind: Pod
+    //     spec:
+    //       containers:
+    //         - name: git
+    //           image: bitnami/git
+    //           command:
+    //             - cat
+    //           tty: true
+    //   '''}}
+    //   steps { checkout scm }
+    // }
 
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
