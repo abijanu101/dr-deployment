@@ -40,16 +40,33 @@ pipeline {
       steps { checkout scm }
     }
 
+    stage('Debug Step') {
+      agent { kubernetes {yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+            - name: helm
+              image: alpine/helm:3.14.0
+              command:
+                - cat
+              tty: true
+      '''}}
+      steps { 
+        sh 'ls ./frontend -l'
+      }
+    }
+
     stage('Build React') {
-      agent { kubernetes { yaml kanikoPod('./frontend/Dockerfile', 'dr-react') } }
+      agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
     }
     stage('Build Express') {
-      agent { kubernetes { yaml kanikoPod('./backend/Dockerfile', 'dr-express') } }
+      agent { kubernetes { yaml kanikoPod('backend/Dockerfile', 'dr-express') } }
       steps { echo 'Express step reached' }
     }
     stage('Build SQL Init') {
-      agent { kubernetes { yaml kanikoPod('./db/Dockerfile', 'dr-sql-init') } }
+      agent { kubernetes { yaml kanikoPod('db/Dockerfile', 'dr-sql-init') } }
       steps { echo 'SQL-init build step reached' }
     }
 
