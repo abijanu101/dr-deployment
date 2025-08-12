@@ -72,6 +72,7 @@ pipeline {
         """}}
     steps {
       container('helm') {
+        sh 'ls'
         sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
         sh 'helm upgrade --install react ./k8s/charts/base -f ./k8s/values/react.yaml'
         sh 'helm upgrade --install express ./k8s/charts/base -f ./k8s/values/express.yaml'
