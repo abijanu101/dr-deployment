@@ -54,7 +54,10 @@ pipeline {
                 - cat
               tty: true
       '''}}
-      steps { sh 'git clone http://github.com/abijanu101/dr-deployment.git' }
+      steps { 
+        checkout scm
+        stash name: 'source', includes: '**/*'
+      }
     }
 
     stage('Deploy with Helm') {
@@ -72,6 +75,7 @@ pipeline {
         """}}
     steps {
       container('helm') {
+        unstash 'source'
         sh 'ls'
         sh 'helm upgrade --install sql ./k8s/charts/base -f ./k8s/values/sql.yaml'
         sh 'helm upgrade --install react ./k8s/charts/base -f ./k8s/values/react.yaml'
