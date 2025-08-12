@@ -29,21 +29,6 @@ pipeline {
   }
 
   stages {
-    // stage('Clone') {
-    //   agent { kubernetes { yaml '''
-    //     apiVersion: v1
-    //     kind: Pod
-    //     spec:
-    //       containers:
-    //         - name: git
-    //           image: bitnami/git
-    //           command:
-    //             - cat
-    //           tty: true
-    //   '''}}
-    //   steps { checkout scm }
-    // }
-
     stage('Build React') {
       agent { kubernetes { yaml kanikoPod('frontend/Dockerfile', 'dr-react') } }
       steps { echo 'React build step reached' }
@@ -62,6 +47,7 @@ pipeline {
         apiVersion: v1
         kind: Pod
         spec:
+          serviceAccountName: jenkins
           containers:
             - name: helm
               image: alpine/helm:3.14.0
