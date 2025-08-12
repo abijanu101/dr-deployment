@@ -8,7 +8,7 @@ def kanikoPod = { dockerfilePath, imageName ->
       - name: kaniko
         image: gcr.io/kaniko-project/executor:latest
         args:
-        - --context=.
+        - --context=${env.WORKSPACE}
         - --dockerfile=${dockerfilePath}
         - --destination=abijanu101/${imageName}:latest
         volumeMounts:
@@ -38,23 +38,6 @@ pipeline {
               tty: true
       '''}}
       steps { checkout scm }
-    }
-
-    stage('Debug Step') {
-      agent { kubernetes {yaml '''
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-            - name: helm
-              image: alpine/helm:3.14.0
-              command:
-                - cat
-              tty: true
-      '''}}
-      steps { 
-        sh 'ls ./frontend -l'
-      }
     }
 
     stage('Build React') {
